@@ -24,12 +24,14 @@ def main():
     address = (ip, port)
 
     if args.server:
+        talk_to = 'client'
         server = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
         server.bind(address)
         print('Started listening on port {}'.format(port))
         server.listen(1)
         conn, address = server.accept()
     else:
+        talk_to = 'server'
         conn = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
         conn.connect(address)
         print('Joined server on {}:{}'.format(ip, port))
@@ -37,7 +39,7 @@ def main():
     thread.start()
     while True:
         msg = conn.recv(1024).decode()
-        print('server:', msg)
+        print('{}: {}'.format(talk_to, msg))
 
 
 if __name__ == '__main__':
