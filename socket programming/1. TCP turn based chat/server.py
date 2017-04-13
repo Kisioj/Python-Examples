@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import socket
 
 server = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
