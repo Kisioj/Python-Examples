@@ -38,11 +38,7 @@ class Player(object):
         horizontal = [''.join(row) for row in fields]
         vertical = [''.join(row) for row in zip(*fields)]
         diagonal = [''.join(fields[i][i] for i in range(3)), ''.join(fields[i][2 - i] for i in range(3))]
-
-        if self.symbol * 3 in horizontal + vertical + diagonal:
-            return True
-        else:
-            return False
+        return (self.symbol * 3) in (horizontal + vertical + diagonal)
 
     @network
     def coord_input(self, msg, regexp):
