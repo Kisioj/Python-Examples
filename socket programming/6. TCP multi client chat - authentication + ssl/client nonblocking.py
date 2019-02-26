@@ -1,11 +1,11 @@
-#!/usr/bin/env python3
 import socket
+import ssl
 import threading
-import errno
+
 from shared.clock import Clock
 from shared.config import HOST, PORT
-from shared.client import dispatch, send_loop
-
+from shared.client import dispatch, context, authentication, chat_logic
+from shared import client
 
 def connection_handler(connection):
     clock = Clock(fps=30)
@@ -17,19 +17,17 @@ def connection_handler(connection):
             if not raw_data:
                 continue
             else:
-                for json_data in raw_data.split('\n'):
+                for json_data in raw_data.split('\x00'):
                     if json_data:
                         # print('json_data', json_data)
                         dispatch(connection, json_data)
 
-        except socket.error as e:
-            if e.args[0] == errno.EWOULDBLOCK:
-                continue
-            raise
+        except ssl.SSLWantReadError:
+            continue
 
 
 def main():
-    connection = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
+    connection = context.wrap_socket(socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM))
     connection.connect((HOST, PORT))
     connection.setblocking(False)
 
@@ -37,7 +35,14 @@ def main():
     thread.daemon = True  # exit the thread when the main thread terminates
     thread.start()
 
-    send_loop(connection)
+    authentication(connection)
+
+    clock = Clock(fps=10)
+    while not client.logged_in:
+        clock.tick()
+
+    chat_logic(connection)
+
 
 if __name__ == '__main__':
     main()

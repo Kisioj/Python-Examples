@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
 import socket
 
 from shared.clock import Clock
 from shared.config import HOST, PORT
-from shared.server import setup, handle, finish, clients
+from shared.server import setup, handle, finish, clients, context
 
 
 def client_listener():
@@ -26,7 +25,11 @@ def client_listener():
 
 
 if __name__ == "__main__":
-    server = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
+    server = context.wrap_socket(
+        socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM),
+        server_side=True
+    )
+
     with server:
         server.bind((HOST, PORT))
         server.listen(100)
